@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Bike" ALTER COLUMN "plate" DROP NOT NULL;

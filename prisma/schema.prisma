@@ -22,32 +22,35 @@ model User {
   isAdmin    Boolean  @default(false)
   isEmployee Boolean? @default(false)
 
-  password  String
-  avatar    String?
-  address   String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  bikes     Bike[]
+  password    String
+  avatar      String?
+  address     String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  bikes       Bike[]
+  Apointments Apointments[]
 }
 
 model Bike {
-  id            String      @id @default(cuid())
-  plate         String      @unique
-  model         String?
-  family        String?
-  vin           String?     @unique
-  userId        String
-  user          User        @relation(fields: [userId], references: [id])
-  apointmentsId String
-  apointments   Apointments @relation(fields: [apointmentsId], references: [id])
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
+  id          String        @id @default(cuid())
+  plate       String?       @unique
+  model       String?
+  family      String?
+  vin         String?       @unique
+  userId      String?
+  user        User?         @relation(fields: [userId], references: [id])
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  apointments Apointments[]
 }
 
 model Apointments {
-  id            String   @id @default(cuid())
-  preferredDate DateTime
-  bikes         Bike[]
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id            String    @id @default(cuid())
+  bikeId        String?
+  bike          Bike?     @relation(fields: [bikeId], references: [id])
+  userId        String?
+  user          User?     @relation(fields: [userId], references: [id])
+  preferredDate DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 }

@@ -18,8 +18,19 @@ app.use('/api', indexRoutes)
 // USERS ROUTES
 import userRoutes from './routes/users.routes'
 app.use('/users', userRoutes)
+// BIKES ROUTES
+import bikesRoutes from './routes/bikes.routes'
+app.use('/bikes', bikesRoutes)
+// APOINTMENTS ROUTES
+import apointmentsRoutes from './routes/apointments.routes'
+app.use('/apointments', apointmentsRoutes)
 
 // ❗ To handle errors. Routes that don't exist or errors that you handle in specific routes
-require('./error-handling')(app)
+const {
+	errorHandler,
+	notFoundHandler,
+} = require('./error-handling/error.handling')
+app.use(notFoundHandler)
+app.use(errorHandler)
 
 module.exports = app
