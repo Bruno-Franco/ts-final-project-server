@@ -7,7 +7,6 @@ require('dotenv').config()
 const express = require('express')
 
 const app = express()
-
 // ℹ️ This function is getting exported from the config folder. It runs most pieces of middleware
 require('./config')(app)
 
@@ -16,14 +15,16 @@ const indexRoutes = require('./routes/index.routes')
 app.use('/api', indexRoutes)
 
 // USERS ROUTES
+import authRoutes from './routes/auth.routes'
+app.use('/auth', authRoutes)
 import userRoutes from './routes/users.routes'
 app.use('/users', userRoutes)
 // BIKES ROUTES
 import bikesRoutes from './routes/bikes.routes'
-app.use('/bikes', bikesRoutes)
+app.use('/my-page/bikes', bikesRoutes)
 // APOINTMENTS ROUTES
-import apointmentsRoutes from './routes/apointments.routes'
-app.use('/apointments', apointmentsRoutes)
+import appointmentsRoutes from './routes/appointments.routes'
+app.use('/my-page/appointments', appointmentsRoutes)
 
 // ❗ To handle errors. Routes that don't exist or errors that you handle in specific routes
 const {

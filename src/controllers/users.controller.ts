@@ -98,5 +98,26 @@ async function updateUser(
 		next(err)
 	}
 }
+// get une user by email to login
+async function verifyUser(
+	req: RequestCreateUpdateUser,
+	res: Response,
+	next: NextFunction
+) {
+	try {
+		let data = await prisma.user.findUnique({
+			where: { email: req.body.email },
+		})
+		if (req.body.password === data.password) {
+			let dataToSend = { ...data, password: 'NothingToShow' }
+			res.status(200).json(dataToSend)
+		} else {
+			res.send(403).json({ message: `Someting wrong!!` })
+		}
+	} catch (err) {
+		console.log(err)
+		next(err)
+	}
+}
 
-module.exports = { getUsers, createUser, deleteUser, updateUser }
+module.exports = { getUsers, createUser, deleteUser, updateUser, verifyUser }

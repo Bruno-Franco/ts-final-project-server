@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from 'express'
 import { PrismaClient } from '@prisma/client'
-import { RequestCreateUpdateApointments } from '../types/apointment.requests'
+import { RequestCreateUpdateAppointments } from '../types/appointment.requests'
 const prisma = new PrismaClient()
 
 // GET ALL APOINTMENTS
-async function getApointments(
-	req: RequestCreateUpdateApointments,
+async function getAppointments(
+	req: RequestCreateUpdateAppointments,
 	res: Response,
 	next: NextFunction
 ) {
@@ -21,17 +21,23 @@ async function getApointments(
 }
 // GET HIS APOINTMENTS
 
-async function getHisApointments(
-	req: RequestCreateUpdateApointments,
+async function getHisAppointments(
+	req: RequestCreateUpdateAppointments,
 	res: Response,
 	next: NextFunction
 ) {
-	const { bikeId } = req.body
+	const { userId } = req.params
+	console.log(userId)
+
 	try {
 		let data = await prisma.apointments.findMany({
-			where: { bikeId },
-			include: { user: true },
+			where: { userId },
+			include: {
+				user: true,
+				bike: true,
+			},
 		})
+		console.log('>>>>>>>>>>>>>>>>', data)
 		res.status(201).json(data)
 	} catch (err) {
 		console.log(err)
@@ -39,17 +45,17 @@ async function getHisApointments(
 	}
 }
 // GET ONE APOINTMENT
-async function getOneApointments(
-	req: RequestCreateUpdateApointments,
+async function getOneAppointments(
+	req: RequestCreateUpdateAppointments,
 	res: Response,
 	next: NextFunction
 ) {
-	const { apointmentId } = req.params
-	console.log(apointmentId)
+	const { appointmentId } = req.params
+	console.log(appointmentId)
 
 	try {
 		let data = await prisma.apointments.findUnique({
-			where: { id: apointmentId },
+			where: { id: appointmentId },
 			include: { user: true },
 		})
 		res.status(200).json(data)
@@ -60,8 +66,8 @@ async function getOneApointments(
 }
 
 // CREATE AN APOINTMENT
-async function createApointments(
-	req: RequestCreateUpdateApointments,
+async function createAppointments(
+	req: RequestCreateUpdateAppointments,
 	res: Response,
 	next: NextFunction
 ) {
@@ -71,10 +77,10 @@ async function createApointments(
 		const { userId } = req.params
 		let preferredDate = new Date(req.body.preferredDate)
 		let { bikeId } = req.body
-		let createdApointment = await prisma.apointments.create({
+		let createdAppointment = await prisma.apointments.create({
 			data: { preferredDate, bikeId, userId },
 		})
-		res.status(201).json(createdApointment)
+		res.status(201).json(createdAppointment)
 	} catch (err) {
 		console.log(err)
 		next(err)
@@ -82,15 +88,15 @@ async function createApointments(
 }
 
 // DELETE A BIKE
-async function deleteApointments(
-	req: RequestCreateUpdateApointments,
+async function deleteAppointments(
+	req: RequestCreateUpdateAppointments,
 	res: Response,
 	next: NextFunction
 ) {
 	try {
-		let { apointmentId } = req.params
+		let { appointmentId } = req.params
 		let data = await prisma.apointments.delete({
-			where: { id: apointmentId },
+			where: { id: appointmentId },
 		})
 		res.status(200).json(data)
 	} catch (err) {
@@ -99,8 +105,8 @@ async function deleteApointments(
 	}
 }
 // UPDATE AN APOINTMENT
-async function updateApointments(
-	req: RequestCreateUpdateApointments,
+async function updateAppointments(
+	req: RequestCreateUpdateAppointments,
 	res: Response,
 	next: NextFunction
 ) {
@@ -112,11 +118,12 @@ async function updateApointments(
 		preferredDate,
 	}
 	try {
-		let { apointmentId } = req.params
+		let { appointmentId } = req.params
 		let data = await prisma.apointments.update({
-			where: { id: apointmentId },
+			where: { id: appointmentId },
 			data: dateUpdated,
 		})
+
 		res.status(200).json(data)
 	} catch (err) {
 		console.log(err)
@@ -125,10 +132,10 @@ async function updateApointments(
 }
 
 module.exports = {
-	getApointments,
-	createApointments,
-	deleteApointments,
-	updateApointments,
-	getHisApointments,
-	getOneApointments,
+	getAppointments,
+	createAppointments,
+	deleteAppointments,
+	updateAppointments,
+	getHisAppointments,
+	getOneAppointments,
 }

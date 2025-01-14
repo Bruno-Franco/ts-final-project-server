@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import { PrismaClient } from '@prisma/client'
 import { RequestCreateUpdateBike } from '../types/bike.requests'
+import { log } from 'console'
 const prisma = new PrismaClient()
 
 // GET ALL bikes
@@ -27,7 +28,10 @@ async function getHisBikes(
 	try {
 		let data = await prisma.bike.findMany({
 			where: { userId },
-			include: { user: true },
+			include: {
+				user: true,
+				apointments: true,
+			},
 		})
 		res.status(201).json(data)
 	} catch (err) {
@@ -84,11 +88,25 @@ async function deleteBike(
 	next: NextFunction
 ) {
 	try {
-		let { bikeId } = req.params
-		let data = await prisma.user.delete({
-			where: { id: bikeId },
+		let { id } = req.body
+
+		console.log('body id', id)
+
+		if (!id) {
+			return res.status(400).json({ error: 'Bike ID is required' })
+		}
+
+		if (typeof id !== 'string') {
+			return res.status(400).json({ error: 'Invalid Bike ID format' })
+		}
+
+		console.log('Deleting bike with ID:', id)
+
+		let data = await prisma.bike.delete({
+			where: { id: id },
 		})
-		res.status(200).json(data)
+
+		res.status(200).json({ message: 'Bike deleted successfully', data })
 	} catch (err) {
 		console.log(err)
 		next(err)
@@ -101,7 +119,7 @@ async function updateBike(
 	next: NextFunction
 ) {
 	//  retrieving data from body
-	const { plate, vin, model, family } = req.body
+	const { id, plate, vin, model, family } = req.body
 
 	// reassigning data
 	const updatedBike = {
@@ -113,7 +131,7 @@ async function updateBike(
 	try {
 		let { userId } = req.params
 		let data = await prisma.bike.update({
-			where: { id: userId },
+			where: { id: id },
 			data: updatedBike,
 		})
 		res.status(200).json(data)
