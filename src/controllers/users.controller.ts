@@ -17,6 +17,27 @@ async function getUsers(
 		next(err)
 	}
 }
+// GET one USERS
+async function getOneUser(
+	req: RequestCreateUpdateUser,
+	res: Response,
+	next: NextFunction
+) {
+	const { userId } = req.params
+	try {
+		let data = await prisma.user.findUnique({
+			where: { id: userId },
+			include: {
+				bikes: true,
+				Apointments: true,
+			},
+		})
+		res.status(201).json(data)
+	} catch (err) {
+		console.log(err)
+		next(err)
+	}
+}
 
 // CREATE A USER
 async function createUser(
@@ -120,4 +141,11 @@ async function verifyUser(
 	}
 }
 
-module.exports = { getUsers, createUser, deleteUser, updateUser, verifyUser }
+module.exports = {
+	getUsers,
+	createUser,
+	deleteUser,
+	updateUser,
+	verifyUser,
+	getOneUser,
+}
