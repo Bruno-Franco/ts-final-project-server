@@ -11,7 +11,11 @@ function errorHandler(
 	console.log('INSIDE ERROR HANDLING FUNCTION!!!')
 
 	console.error('ERROR', req.method, req.path, err)
-
+	if (req.path === '/auth/login') {
+		res.status(403).json({
+			message: 'No access!',
+		})
+	}
 	// only render if the error ocurred before sending the response
 	if (!res.headersSent) {
 		console.log('INSIDE ERROR HANDLING FUNCTION - WHITH NO HEADER SENT!!!!')

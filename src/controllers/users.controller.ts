@@ -133,7 +133,10 @@ async function verifyUser(
 				Apointments: true,
 			},
 		})
-		if (req.body.password === data.password) {
+		if (
+			req.body.password === data.password &&
+			req.body.email === data.email
+		) {
 			let dataToSend = { ...data, password: 'NothingToShow' }
 			res.status(200).json(dataToSend)
 		} else {
