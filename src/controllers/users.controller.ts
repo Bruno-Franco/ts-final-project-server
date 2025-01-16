@@ -128,6 +128,10 @@ async function verifyUser(
 	try {
 		let data = await prisma.user.findUnique({
 			where: { email: req.body.email },
+			include: {
+				bikes: true,
+				Apointments: true,
+			},
 		})
 		if (req.body.password === data.password) {
 			let dataToSend = { ...data, password: 'NothingToShow' }
