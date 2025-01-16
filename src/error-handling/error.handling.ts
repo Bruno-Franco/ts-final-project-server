@@ -11,6 +11,8 @@ function errorHandler(
 	console.log('INSIDE ERROR HANDLING FUNCTION!!!')
 
 	console.error('ERROR', req.method, req.path, err)
+
+	// this is for wrong email!!
 	if (req.path === '/auth/login') {
 		res.status(403).json({
 			message: 'No access!',
