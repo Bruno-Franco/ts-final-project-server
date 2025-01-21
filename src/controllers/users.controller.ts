@@ -61,26 +61,29 @@ async function createUser(
 			req.body.email.length
 		)
 		let { firstName, email, password, isEmployee } = req.body
-		let isUnique = await prisma.user.findUnique({
-			where: { email: req.body.email },
-		})
+		// let response = await prisma.user.findUnique({
+		// 	where: { email: req.body.email },
+		// })
+		// console.log('>>>>>>>>>>>>>>>', response.email, req.body.email)
 
-		if (isUnique.email !== req.body.email) {
-			if (isDomain === domainSignUp) {
-				let createdUser = await prisma.user.create({
-					data: { firstName, email, password, isEmployee: true },
-				})
-				console.log('>>>>>>>>>>', createUser)
-
-				return res.status(201).json(createdUser)
-			}
-
+		// if (response.email === req.body.email) {
+		// 	return res.status(409).json({ message: `Error` })
+		// }
+		if (isDomain === domainSignUp) {
 			let createdUser = await prisma.user.create({
-				data: { firstName, email, password, isEmployee },
+				data: { firstName, email, password, isEmployee: true },
 			})
+			console.log('>>>>>>>>>>', createUser)
+
 			return res.status(201).json(createdUser)
 		}
-		return res.status(409).json({ message: `Error` })
+
+		// let createdUser = await prisma.user.create({
+		// 	data: { firstName, email, password, isEmployee },
+		// })
+		// return res.status(201).json(createdUser)
+
+		// return res.status(409).json({ message: `Error` })
 		////////////////////////////
 		////////////////////////////
 	} catch (err) {

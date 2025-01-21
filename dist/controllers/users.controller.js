@@ -59,23 +59,25 @@ function createUser(req, res, next) {
             const isDomain = '@hd.com';
             const domainSignUp = req.body.email.slice(req.body.email.indexOf('@'), req.body.email.length);
             let { firstName, email, password, isEmployee } = req.body;
-            let isUnique = yield prisma.user.findUnique({
-                where: { email: req.body.email },
-            });
-            if (isUnique.email !== req.body.email) {
-                if (isDomain === domainSignUp) {
-                    let createdUser = yield prisma.user.create({
-                        data: { firstName, email, password, isEmployee: true },
-                    });
-                    console.log('>>>>>>>>>>', createUser);
-                    return res.status(201).json(createdUser);
-                }
+            // let response = await prisma.user.findUnique({
+            // 	where: { email: req.body.email },
+            // })
+            // console.log('>>>>>>>>>>>>>>>', response.email, req.body.email)
+            // if (response.email === req.body.email) {
+            // 	return res.status(409).json({ message: `Error` })
+            // }
+            if (isDomain === domainSignUp) {
                 let createdUser = yield prisma.user.create({
-                    data: { firstName, email, password, isEmployee },
+                    data: { firstName, email, password, isEmployee: true },
                 });
+                console.log('>>>>>>>>>>', createUser);
                 return res.status(201).json(createdUser);
             }
-            return res.status(409).json({ message: `Error` });
+            // let createdUser = await prisma.user.create({
+            // 	data: { firstName, email, password, isEmployee },
+            // })
+            // return res.status(201).json(createdUser)
+            // return res.status(409).json({ message: `Error` })
             ////////////////////////////
             ////////////////////////////
         }
