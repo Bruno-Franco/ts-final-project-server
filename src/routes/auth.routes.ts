@@ -1,5 +1,5 @@
 import router, { Router } from 'express'
-import { isAuthenticated } from '../../middleware/jwt.middleware'
+import { isAuthenticated } from '../middleware/jwt.middleware'
 
 const {
 	createUser,

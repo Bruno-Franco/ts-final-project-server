@@ -8,8 +8,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const client_1 = require("@prisma/client");
+// const jwt = require('jsonwebtoken')
+// const { JwtPayload } = require('jsonwebtoken')
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const prisma = new client_1.PrismaClient();
 // GET ALL USERS
 function getUsers(req, res, next) {
@@ -47,13 +53,31 @@ function getOneUser(req, res, next) {
 // CREATE A USER
 function createUser(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
-        console.log(req.body);
         try {
-            let { firstName, email, password } = req.body;
-            let createdUser = yield prisma.user.create({
-                data: { firstName, email, password },
+            //////////////////////////////////////////
+            // CREATE A EMPLOYEE ACCOUNT BY HIS DOMAIN
+            const isDomain = '@hd.com';
+            const domainSignUp = req.body.email.slice(req.body.email.indexOf('@'), req.body.email.length);
+            let { firstName, email, password, isEmployee } = req.body;
+            let isUnique = yield prisma.user.findUnique({
+                where: { email: req.body.email },
             });
-            res.status(201).json(createdUser);
+            if (isUnique.email !== req.body.email) {
+                if (isDomain === domainSignUp) {
+                    let createdUser = yield prisma.user.create({
+                        data: { firstName, email, password, isEmployee: true },
+                    });
+                    console.log('>>>>>>>>>>', createUser);
+                    return res.status(201).json(createdUser);
+                }
+                let createdUser = yield prisma.user.create({
+                    data: { firstName, email, password, isEmployee },
+                });
+                return res.status(201).json(createdUser);
+            }
+            return res.status(409).json({ message: `Error` });
+            ////////////////////////////
+            ////////////////////////////
         }
         catch (err) {
             console.log(err);
@@ -109,15 +133,26 @@ function updateUser(req, res, next) {
     });
 }
 // get une user by email to login
-function verifyUser(req, res, next) {
+function logInUser(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             let data = yield prisma.user.findUnique({
                 where: { email: req.body.email },
+                include: {
+                    bikes: true,
+                    Apointments: true,
+                },
             });
-            if (req.body.password === data.password) {
+            if (req.body.password === data.password &&
+                req.body.email === data.email) {
+                const { id, email, firstName, isEmployee } = data;
+                const payload = { id, email, firstName, isEmployee };
+                const authTOKEN = jsonwebtoken_1.default.sign(payload, process.env.TOKEN_SECRET, {
+                    algorithm: 'HS256',
+                    expiresIn: '72h',
+                });
                 let dataToSend = Object.assign(Object.assign({}, data), { password: 'NothingToShow' });
-                res.status(200).json(dataToSend);
+                res.status(200).json({ data: dataToSend, token: authTOKEN });
             }
             else {
                 res.send(403).json({ message: `Someting wrong!!` });
@@ -129,11 +164,17 @@ function verifyUser(req, res, next) {
         }
     });
 }
+function verifyUser(req, res, next) {
+    return __awaiter(this, void 0, void 0, function* () {
+        res.status(200).json(req.token);
+    });
+}
 module.exports = {
     getUsers,
     createUser,
     deleteUser,
     updateUser,
-    verifyUser,
+    logInUser,
     getOneUser,
+    verifyUser,
 };

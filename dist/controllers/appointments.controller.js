@@ -16,7 +16,7 @@ function getAppointments(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             let data = yield prisma.apointments.findMany({
-                include: { user: true },
+                include: { user: true, bike: true },
             });
             res.status(200).json(data);
         }

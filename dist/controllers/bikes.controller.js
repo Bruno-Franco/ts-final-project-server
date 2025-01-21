@@ -71,6 +71,7 @@ function createBike(req, res, next) {
             let { plate, vin, model, family } = req.body;
             let createdBike = yield prisma.bike.create({
                 data: { plate, vin, model, family, userId },
+                include: { apointments: true, user: true },
             });
             res.status(201).json(createdBike);
         }
