@@ -1,7 +1,14 @@
 import { Request, Response, NextFunction } from 'express'
 import { PrismaClient } from '@prisma/client'
 import { RequestCreateUpdateUser } from '../types/user.requests'
+// const jwt = require('jsonwebtoken')
+// const { JwtPayload } = require('jsonwebtoken')
+import jwt, { JwtPayload } from 'jsonwebtoken'
 const prisma = new PrismaClient()
+
+export interface CustomRequest extends Request {
+	token: string | JwtPayload
+}
 
 // GET ALL USERS
 async function getUsers(
@@ -45,14 +52,37 @@ async function createUser(
 	res: Response,
 	next: NextFunction
 ) {
-	console.log(req.body)
-
 	try {
-		let { firstName, email, password } = req.body
-		let createdUser = await prisma.user.create({
-			data: { firstName, email, password },
+		//////////////////////////////////////////
+		// CREATE A EMPLOYEE ACCOUNT BY HIS DOMAIN
+		const isDomain: string = '@hd.com'
+		const domainSignUp: string = req.body.email.slice(
+			req.body.email.indexOf('@'),
+			req.body.email.length
+		)
+		let { firstName, email, password, isEmployee } = req.body
+		let isUnique = await prisma.user.findUnique({
+			where: { email: req.body.email },
 		})
-		res.status(201).json(createdUser)
+
+		if (isUnique.email !== req.body.email) {
+			if (isDomain === domainSignUp) {
+				let createdUser = await prisma.user.create({
+					data: { firstName, email, password, isEmployee: true },
+				})
+				console.log('>>>>>>>>>>', createUser)
+
+				return res.status(201).json(createdUser)
+			}
+
+			let createdUser = await prisma.user.create({
+				data: { firstName, email, password, isEmployee },
+			})
+			return res.status(201).json(createdUser)
+		}
+		return res.status(409).json({ message: `Error` })
+		////////////////////////////
+		////////////////////////////
 	} catch (err) {
 		console.log(err)
 		next(err)
@@ -120,7 +150,7 @@ async function updateUser(
 	}
 }
 // get une user by email to login
-async function verifyUser(
+async function logInUser(
 	req: RequestCreateUpdateUser,
 	res: Response,
 	next: NextFunction
@@ -137,8 +167,16 @@ async function verifyUser(
 			req.body.password === data.password &&
 			req.body.email === data.email
 		) {
+			const { id, email, firstName, isEmployee } = data
+			const payload = { id, email, firstName, isEmployee }
+			const authTOKEN = jwt.sign(payload, process.env.TOKEN_SECRET, {
+				algorithm: 'HS256',
+				expiresIn: '72h',
+			})
+
 			let dataToSend = { ...data, password: 'NothingToShow' }
-			res.status(200).json(dataToSend)
+
+			res.status(200).json({ data: dataToSend, token: authTOKEN })
 		} else {
 			res.send(403).json({ message: `Someting wrong!!` })
 		}
@@ -148,11 +186,16 @@ async function verifyUser(
 	}
 }
 
+async function verifyUser(req: Request, res: Response, next: NextFunction) {
+	res.status(200).json((req as CustomRequest).token)
+}
+
 module.exports = {
 	getUsers,
 	createUser,
 	deleteUser,
 	updateUser,
-	verifyUser,
+	logInUser,
 	getOneUser,
+	verifyUser,
 }
