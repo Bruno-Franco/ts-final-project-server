@@ -10,6 +10,7 @@ const secret = process.env.TOKEN_SECRET
 // Instantiate the JWT token validation middleware
 function isAuthenticated(req: Request, res: Response, next: NextFunction) {
 	try {
+		console.log(req.headers)
 		// Get the token string from the authorization header - "Bearer eyJh5kp9..."
 		if (req.headers.authorization) {
 			const token = req.headers.authorization.split(' ')[1]
@@ -19,6 +20,7 @@ function isAuthenticated(req: Request, res: Response, next: NextFunction) {
 
 			// Add payload to the request object as req.payload for use in next middleware or route
 			;(req as CustomRequest).token = payload
+
 			// Call next() to pass the request to the next middleware function or route
 			next()
 		}

@@ -11,7 +11,7 @@ async function getAppointments(
 ) {
 	try {
 		let data = await prisma.apointments.findMany({
-			include: { user: true },
+			include: { user: true, bike: true },
 		})
 		res.status(200).json(data)
 	} catch (err) {

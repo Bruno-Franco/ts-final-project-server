@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import { PrismaClient } from '@prisma/client'
 import { RequestCreateUpdateBike } from '../types/bike.requests'
-import { log } from 'console'
+
 const prisma = new PrismaClient()
 
 // GET ALL bikes

@@ -38,7 +38,7 @@ model Bike {
   family      String?
   vin         String?       @unique
   userId      String?
-  user        User?         @relation(fields: [userId], references: [id])
+  user        User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   apointments Apointments[]
@@ -47,9 +47,9 @@ model Bike {
 model Apointments {
   id            String    @id @default(cuid())
   bikeId        String?
-  bike          Bike?     @relation(fields: [bikeId], references: [id])
+  bike          Bike?     @relation(fields: [bikeId], references: [id], onDelete: Cascade)
   userId        String?
-  user          User?     @relation(fields: [userId], references: [id])
+  user          User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
   preferredDate DateTime?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
