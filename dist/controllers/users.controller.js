@@ -73,10 +73,10 @@ function createUser(req, res, next) {
                 console.log('>>>>>>>>>>', createUser);
                 return res.status(201).json(createdUser);
             }
-            // let createdUser = await prisma.user.create({
-            // 	data: { firstName, email, password, isEmployee },
-            // })
-            // return res.status(201).json(createdUser)
+            let createdUser = yield prisma.user.create({
+                data: { firstName, email, password, isEmployee },
+            });
+            return res.status(201).json(createdUser);
             // return res.status(409).json({ message: `Error` })
             ////////////////////////////
             ////////////////////////////
